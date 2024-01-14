@@ -2,8 +2,8 @@ import React, { useState, useRef } from 'react';
 import { Button, Link } from "@nextui-org/react";
 import { PlayerRecord } from '@/icons/PlayerRecord.jsx'
 import { PlayerStop } from '@/icons/PlayerStop.jsx'
-import { toast } from 'sonner'
 import { Download } from '@/icons/Download.jsx';
+import { toast } from 'sonner'
 
 export default function Recorder() {
   const [isRecording, setIsRecording] = useState(false);
@@ -12,55 +12,68 @@ export default function Recorder() {
   const mediaStreamRef = useRef(null);
   const downloadLinkRef = useRef(null);
 
-  const handleStartRecording = async () => {
-    if (isRecording) {
-      return;
-    }
-
-    try {
-      const media = await navigator.mediaDevices.getDisplayMedia({
-        video: { frameRate: { ideal: 30 } },
-        audio: true,
-      });
-      mediaStreamRef.current = media;
-      mediaRecorderRef.current = new MediaRecorder(media, {
-        mimeType: 'video/webm;codecs=vp8,opus'
-      });
-      mediaRecorderRef.current.start();
+  const startRecording = async () => {
+    const media = await navigator.mediaDevices.getDisplayMedia({
+      video: { frameRate: { ideal: 30 } },
+      audio: true,
+    });
+    mediaStreamRef.current = media;
+    mediaRecorderRef.current = new MediaRecorder(media, {
+      mimeType: 'video/webm;codecs=vp8,opus'
+    });
   
-      const [video] = media.getVideoTracks();
-      video.addEventListener("ended", () => {
-        handleStopRecording();
-      });
+    const [video] = media.getVideoTracks();
+    video.addEventListener("ended", handleStopRecording);
   
-      mediaRecorderRef.current.addEventListener("dataavailable", (e) => {
-        const url = URL.createObjectURL(e.data);
-        downloadLinkRef.current.href = url;
-        downloadLinkRef.current.download = "captura.webm";
-        setShowDownloadLink(true);
-        toast.success(`Su video esta disponible para descargar`)
-      });
+    mediaRecorderRef.current.addEventListener("dataavailable", handleDataAvailable);
   
-      setIsRecording(true);
-    } catch (error) {
-      console.error("Error al acceder a dispositivos multimedia:", error);
-      toast.error(`Error al acceder a dispositivos multimedia: ${error}`)
-    }
+    mediaRecorderRef.current.start();
+    setIsRecording(true);
   };
-
-  const handleStopRecording = () => {
+  
+  const handleDataAvailable = (e) => {
+    const url = URL.createObjectURL(e.data);
+    downloadLinkRef.current.href = url;
+    downloadLinkRef.current.download = "captura.webm";
+    setShowDownloadLink(true);
+    toast.success(`Su video esta disponible para descargar`);
+  };
+  
+  const stopRecording = () => {
     if (mediaRecorderRef.current) {
       mediaRecorderRef.current.stop();
       mediaRecorderRef.current = null;
     }
-    
+  
     if (mediaStreamRef.current) {
       mediaStreamRef.current.getTracks().forEach(track => track.stop());
       mediaStreamRef.current = null;
     }
-
+  
     setIsRecording(false);
   };
+  
+  const handleStartRecording = async () => {
+    if (!isRecording) {
+      try {
+        await startRecording();
+      } catch (error) {
+        console.error("Error al acceder a dispositivos multimedia:", error.name);
+        if(error.name === 'NotAllowedError'){
+          toast.error(`Error al acceder a dispositivos multimedia: Permiso denegado`);
+          return
+        }
+        toast.error(`Error al acceder a dispositivos multimedia`);
+      }
+    }
+  };
+  
+  const handleStopRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    }
+  };
+  
 
   return (
     <div className='flex flex-col md:flex-col justify-between gap-2 md:gap-2'>
