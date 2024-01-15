@@ -78,8 +78,8 @@ export default function Recorder() {
   return (
     <div className='flex flex-col md:flex-col justify-between gap-2 md:gap-2'>
       <div className='flex flex-col md:flex-row justify-between gap-2 md:gap-2'>
-        <Button color="danger" isDisabled={isRecording} onPress={handleStartRecording} startContent={<PlayerRecord />}>Grabar</Button>
-        <Button isDisabled={!isRecording} onPress={handleStopRecording} startContent={<PlayerStop />}>Detener</Button>
+        <Button size='lg' color="danger" isDisabled={isRecording} onPress={handleStartRecording} startContent={<PlayerRecord />}>Grabar</Button>
+        <Button size='lg' isDisabled={!isRecording} onPress={handleStopRecording} startContent={<PlayerStop />}>Detener</Button>
       </div>
       <Button
         ref={downloadLinkRef}
@@ -88,6 +88,7 @@ export default function Recorder() {
         className='flex items-center  bg-gradient-to-tr from-blue-600 to-violet-900 text-white shadow-lg'
         isDisabled={!showDownloadLink}
         endContent={<Download />}
+        size='lg'
         onClick={() => setShowDownloadLink(false)}
       >
         Descargar video
