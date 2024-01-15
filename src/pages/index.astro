@@ -1,12 +1,14 @@
 ---
-import Recorder from "../components/Recorder.jsx";
+import Hero from "@/components/Hero.astro";
 import Layout from "../layouts/Layout.astro";
 import { Toaster } from "sonner";
+import Header from "@/components/Header.astro";
 ---
 
-<Layout title='Grabador web'>
+<Layout title='OwnRecorder. Grabador web'>
+  <Header />
   <main class='grid place-content-center min-h-screen'>
-    <Recorder client:load />
+    <Hero />
     <Toaster richColors client:load />
   </main>
 </Layout>
