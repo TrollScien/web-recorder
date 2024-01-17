@@ -36,7 +36,7 @@ export default function Recorder() {
     downloadLinkRef.current.href = url;
     downloadLinkRef.current.download = "captura.webm";
     setShowDownloadLink(true);
-    toast.success(`Su video esta disponible para descargar`);
+    toast.success(`Su video está listo para descargar.`);
   };
   
   const stopRecording = () => {
@@ -63,7 +63,7 @@ export default function Recorder() {
           toast.error(`Error al acceder a dispositivos multimedia: Permiso denegado`);
           return
         }
-        toast.error(`Error al acceder a dispositivos multimedia`);
+        toast.error(`Error al acceder a dispositivos multimedia ${error}` );
       }
     }
   };
