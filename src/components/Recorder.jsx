@@ -13,22 +13,31 @@ export default function Recorder() {
   const downloadLinkRef = useRef(null);
 
   const startRecording = async () => {
-    const media = await navigator.mediaDevices.getDisplayMedia({
-      video: { frameRate: { ideal: 30 } },
-      audio: true,
-    });
-    mediaStreamRef.current = media;
-    mediaRecorderRef.current = new MediaRecorder(media, {
-      mimeType: 'video/webm;codecs=vp8,opus'
-    });
-  
-    const [video] = media.getVideoTracks();
-    video.addEventListener("ended", handleStopRecording);
-  
-    mediaRecorderRef.current.addEventListener("dataavailable", handleDataAvailable);
-  
-    mediaRecorderRef.current.start();
-    setIsRecording(true);
+    try {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+        throw new Error('La grabación de pantalla no está disponible en tu dispositivo.');
+      }
+      const media = await navigator.mediaDevices.getDisplayMedia({
+        video: { frameRate: { ideal: 30 } },
+        audio: true,
+      });
+      mediaStreamRef.current = media;
+      mediaRecorderRef.current = new MediaRecorder(media, {
+        mimeType: 'video/webm;codecs=vp8,opus'
+      });
+    
+      const [video] = media.getVideoTracks();
+      video.addEventListener("ended", handleStopRecording);
+    
+      mediaRecorderRef.current.addEventListener("dataavailable", handleDataAvailable);
+    
+      mediaRecorderRef.current.start();
+      setIsRecording(true);
+    } catch (error) {
+      console.error("Error al acceder a dispositivos multimedia:", error.message);
+      toast.error(`Error al acceder a dispositivos multimedia: ${error.message}`);
+    }
+    
   };
   
   const handleDataAvailable = (e) => {
@@ -63,7 +72,7 @@ export default function Recorder() {
           toast.error(`Error al acceder a dispositivos multimedia: Permiso denegado`);
           return
         }
-        toast.error(`Error al acceder a dispositivos multimedia ${error}` );
+        toast.error(`Error al acceder a dispositivos multimedia ${error.message}` );
       }
     }
   };
