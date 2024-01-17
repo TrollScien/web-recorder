@@ -34,10 +34,16 @@ export default function Recorder() {
       mediaRecorderRef.current.start();
       setIsRecording(true);
     } catch (error) {
-      console.error("Error al acceder a dispositivos multimedia:", error.message);
-      toast.error(`Error al acceder a dispositivos multimedia: ${error.message}`);
+      console.error("Error al acceder a dispositivos multimedia:", error.name);
+      const errorMessages = {
+        'NotAllowedError': 'Permiso denegado',
+        'InvalidStateError': 'El estado del MediaRecorder es inválido',
+        'SecurityError': 'Se ha producido un error de seguridad',
+        'NotSupportedError': 'La operación no es soportada por este navegador'
+      };
+      const errorMessage = errorMessages[error.name] || error.message;
+      toast.error(`Error al acceder a dispositivos multimedia: ${errorMessage}`);
     }
-    
   };
   
   const handleDataAvailable = (e) => {
@@ -64,16 +70,7 @@ export default function Recorder() {
   
   const handleStartRecording = async () => {
     if (!isRecording) {
-      try {
-        await startRecording();
-      } catch (error) {
-        console.error("Error al acceder a dispositivos multimedia:", error.name);
-        if(error.name === 'NotAllowedError'){
-          toast.error(`Error al acceder a dispositivos multimedia: Permiso denegado`);
-          return
-        }
-        toast.error(`Error al acceder a dispositivos multimedia ${error.message}` );
-      }
+      await startRecording();
     }
   };
   
